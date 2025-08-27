@@ -2,6 +2,7 @@ import "./globals.css";
 import { Montserrat } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { Metadata, Viewport } from "next";
+import { SidebarProvider } from "./Components/SidebarContext";
 
 const montserrate = Montserrat({
   subsets: ["latin"],
@@ -27,12 +28,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={montserrate.className}>
-        <Toaster />
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <main className="transition-all duration-300 overflow-x-auto">
-            <div className="max-w-full">{children}</div>
-          </main>
-        </div>
+        <SidebarProvider>
+          <Toaster />
+          <div className="min-h-screen bg-gray-50 flex flex-col">
+            <main className="transition-all duration-300 overflow-x-auto">
+              <div className="max-w-full">{children}</div>
+            </main>
+          </div>
+        </SidebarProvider>
       </body>
     </html>
   );
