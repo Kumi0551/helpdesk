@@ -10,6 +10,10 @@ export async function GET() {
       return NextResponse.json({ error: "An error occurred" });
     }
 
+    if (!currentUser.departmentId) {
+      return NextResponse.json({ error: "An error occurred" });
+    }
+
     const tickets = await prisma.ticket.findMany({
       where: {
         departmentId: currentUser.departmentId,
