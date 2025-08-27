@@ -1,0 +1,181 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Department {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  users     User[]
+  tickets   Ticket[]
+  notifications Notification[] @relation("DepartmentNotifications")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  name              String?
+  email             String?   @unique
+  emailVerified     DateTime?
+  image             String?
+  hashedPassword    String?
+  role              Role      @default(USER)
+  departmentId      String?   @db.ObjectId
+  isActive          Boolean   @default(true)
+  deactivatedAt     DateTime?
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorSecret   String?
+  lastLoginAt       DateTime?
+  failedLoginAttempts Int     @default(0)
+  passwordLastChanged DateTime?
+  passwordHistory   PasswordHistory[]
+  sessions          Session[]
+  department        Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  ticketsCreated    Ticket[]  @relation("CreatedTickets")
+  ticketsAssigned   Ticket[]  @relation("AssignedTickets")
+  ticketsAccepted   Ticket[]  @relation("AcceptedTickets")
+  comments          Comment[]
+  accounts          Account[]
+  notifications     Notification[] @relation("UserNotifications")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Ticket {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  subject      String  
+  description  String  
+  //type         String  
+  //category     String  
+  priority     Priority @default(MEDIUM)  
+  status       Status   @default(PENDING)
+  acceptedAt   DateTime?  
+  acceptedBy   User?      @relation("AcceptedTickets", fields: [acceptedById], references: [id])
+  acceptedById String?    @db.ObjectId
+  createdBy    User     @relation("CreatedTickets", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById  String   @db.ObjectId
+  resolvedAt   DateTime?
+  closedAt     DateTime?
+  assignedTo   User?    @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  assignedToId String?  @db.ObjectId
+  assignedAt  DateTime?
+  departmentId String   @db.ObjectId
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  notifications Notification[] @relation("TicketNotifications")
+  comments     Comment[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String  
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId  String   @db.ObjectId
+  createdBy User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String @db.ObjectId
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  type         String
+  message      String
+  recipientId  String      @db.ObjectId
+  recipient    User        @relation("UserNotifications", fields: [recipientId], references: [id])
+  ticketId     String?     @db.ObjectId
+  ticket       Ticket?     @relation("TicketNotifications", fields: [ticketId], references: [id])
+  departmentId String?     @db.ObjectId
+  department   Department? @relation("DepartmentNotifications", fields: [departmentId], references: [id])
+  isRead       Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum Status {
+  PENDING
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+  userAgent    String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model PasswordHistory {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashedPassword String
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ApiLog {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  method       String
+  url          String
+  status       Int
+  userId       String?  @db.ObjectId
+  ipAddress    String?
+  userAgent    String?
+  requestBody  String?
+  responseBody String?
+  duration     Int
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}

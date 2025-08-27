@@ -1,0 +1,28 @@
+//get ticket by id
+
+import prisma from "@/libs/prismadb";
+import { NextResponse } from "next/server";
+
+export default async function getTicketById(ticketId: string) {
+  try {
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            isActive: true, // Add this
+          },
+        },
+        // ... other includes
+      },
+    });
+
+    return ticket;
+  } catch {
+    throw NextResponse.error;
+  }
+}
