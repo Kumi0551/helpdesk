@@ -24,10 +24,32 @@ export async function getUserTickets() {
             name: true,
             email: true,
             image: true,
-            isActive: true, // Add this
+            isActive: true,
           },
         },
-        // ... other includes
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        acceptedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        comments: true,
       },
       orderBy: { createdAt: "desc" },
     });

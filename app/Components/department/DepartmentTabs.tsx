@@ -21,7 +21,10 @@ interface DepartmentTabsProps {
       updatedAt: Date;
       emailVerified: Date | null;
       hashedPassword: string | null;
-      departmentId: string;
+      departmentId: string | null;
+      isActive: boolean;
+      lastLoginAt?: Date;
+      passwordLastChanged?: Date;
     }[];
     tickets: Ticket[];
   };

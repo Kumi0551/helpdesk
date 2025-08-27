@@ -17,7 +17,8 @@ interface ProfileFormProps {
     name: string | null;
     email: string | null;
     role: Role;
-    departmentId: string;
+    departmentId: string | null;
+    isActive: boolean;
     createdAt: string;
     updatedAt: string;
     emailVerified: Date | null;

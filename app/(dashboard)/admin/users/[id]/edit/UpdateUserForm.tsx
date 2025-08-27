@@ -17,13 +17,14 @@ interface UpdateUserProps {
     name: string | null;
     email: string | null;
     role: string;
-    departmentId: string;
+    departmentId: string | null;
+    isActive: boolean;
     department: {
       id: string;
       name: string;
       createdAt: Date;
       updatedAt: Date;
-    };
+    } | null;
     _count: {
       ticketsCreated: number;
       ticketsAssigned: number;

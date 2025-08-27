@@ -13,6 +13,7 @@ export async function getAllTickets() {
   try {
     return await prisma.ticket.findMany({
       include: {
+        department: true,
         createdBy: {
           select: {
             id: true,
@@ -22,7 +23,9 @@ export async function getAllTickets() {
             isActive: true, // Add this
           },
         },
-        // ... other includes remain the same
+        _count: {
+          select: { comments: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

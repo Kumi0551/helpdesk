@@ -10,8 +10,8 @@ interface AcceptTicketButtonProps {
   currentStatus: "OPEN" | "PENDING" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
   currentUserId: string;
   assignedToId: string | null;
-  departmentId: string;
-  currentUserDepartmentId: string;
+  departmentId: string | null;
+  currentUserDepartmentId: string | null;
   createdById: string;
   ticketSubject: string;
 }

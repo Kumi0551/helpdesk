@@ -1,9 +1,23 @@
-import { User } from "@prisma/client";
+import { Role } from "@prisma/client";
 import Link from "next/link";
 import { FaUserEdit } from "react-icons/fa";
 
 interface UserTableProps {
-  users: User[];
+  users: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+    role: Role;
+    createdAt: Date;
+    updatedAt: Date;
+    emailVerified: Date | null;
+    hashedPassword: string | null;
+    departmentId: string | null;
+    isActive: boolean;
+    lastLoginAt?: Date;
+    passwordLastChanged?: Date;
+  }[];
 }
 
 const UserTable = ({ users }: UserTableProps) => {

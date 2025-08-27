@@ -26,6 +26,11 @@ export async function getDepartmentById(departmentId: string) {
             emailVerified: true,
             hashedPassword: true,
             departmentId: true,
+            isActive: true,
+            lastLoginAt: true,
+            passwordLastChanged: true,
+            deactivatedAt: true,
+            failedLoginAttempts: true,
           },
           orderBy: {
             createdAt: "desc",

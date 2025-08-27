@@ -33,6 +33,12 @@ export const authOptions: AuthOptions = {
           throw new Error("Invalid password");
         }
 
+        // Update lastLoginAt on successful login
+        await prisma.user.update({
+          where: { email: credentials.email },
+          data: { lastLoginAt: new Date() },
+        });
+
         return user;
       },
     }),

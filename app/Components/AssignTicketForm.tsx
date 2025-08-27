@@ -10,7 +10,7 @@ import { FieldValues, useForm } from "react-hook-form";
 
 interface AssignTicketFormProps {
   ticketId: string;
-  currentUserDepartmentId: string;
+  currentUserDepartmentId: string | null;
   canAssignTicket: boolean;
 }
 

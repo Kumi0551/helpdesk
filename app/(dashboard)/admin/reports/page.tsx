@@ -58,7 +58,10 @@ const ReportPage = async ({
     <Container>
       <div className="w-full overflow-hidden relative">
         <ReportFilters
-          currentUser={currentUser}
+          currentUser={{
+            ...currentUser,
+            departmentId: currentUser.departmentId ?? undefined,
+          }}
           departments={departments}
           initialParams={resolvedSearchParams}
         />

@@ -40,7 +40,17 @@ const DepartmentPage = async ({
         </p>
       </div>
 
-      <DepartmentTabs department={department} />
+      <DepartmentTabs
+        department={{
+          ...department,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          users: department.users.map((user: any) => ({
+            ...user,
+            lastLoginAt:
+              user.lastLoginAt === null ? undefined : user.lastLoginAt,
+          })),
+        }}
+      />
     </div>
   );
 };

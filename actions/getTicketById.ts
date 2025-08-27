@@ -17,7 +17,30 @@ export default async function getTicketById(ticketId: string) {
             isActive: true, // Add this
           },
         },
-        // ... other includes
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        acceptedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+
+        department: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        comments: true,
       },
     });
 

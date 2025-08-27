@@ -28,8 +28,6 @@ model User {
   departmentId      String?   @db.ObjectId
   isActive          Boolean   @default(true)
   deactivatedAt     DateTime?
-  twoFactorEnabled  Boolean   @default(false)
-  twoFactorSecret   String?
   lastLoginAt       DateTime?
   failedLoginAttempts Int     @default(0)
   passwordLastChanged DateTime?

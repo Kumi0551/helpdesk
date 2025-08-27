@@ -68,6 +68,7 @@ export async function PATCH(
       }),
       ...(newPassword && {
         hashedPassword: await bcrypt.hash(newPassword, 10),
+        passwordLastChanged: new Date(),
       }),
     };
 
