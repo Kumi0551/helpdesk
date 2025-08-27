@@ -10,7 +10,7 @@ export async function authMiddleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    const token = await getToken({ req: request as any })
+  const token = await getToken({ req: request })
 
     if (!token) {
       return NextResponse.redirect(new URL('/signin', request.url))
