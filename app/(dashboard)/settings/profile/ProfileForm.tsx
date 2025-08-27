@@ -57,18 +57,26 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ currentUser }) => {
   const formValues = watch();
 
   useEffect(() => {
-    const hasNameChanged =
-      dirtyFields.name && formValues.name?.trim() !== currentUser?.name?.trim();
+    const hasNameChanged = dirtyFields.name;
+    const hasCurrentPasswordChanged = dirtyFields.currentPassword;
+    const hasNewPasswordChanged = dirtyFields.newPassword;
 
-    const hasCurrentPasswordChanged =
-      dirtyFields.currentPassword && formValues.currentPassword.trim() !== "";
-    const hasNewPasswordChanged =
-      dirtyFields.newPassword && formValues.newPassword.trim() !== "";
+    // Check if changes are meaningful (not just whitespace)
+    const hasMeaningfulNameChange =
+      hasNameChanged && formValues.name?.trim() !== currentUser?.name?.trim();
+
+    const hasMeaningfulCurrentPassword =
+      hasCurrentPasswordChanged && formValues.currentPassword?.trim() !== "";
+
+    const hasMeaningfulNewPassword =
+      hasNewPasswordChanged && formValues.newPassword?.trim() !== "";
 
     setIsFormDirty(
-      hasNameChanged || hasCurrentPasswordChanged || hasNewPasswordChanged
+      hasMeaningfulNameChange ||
+        hasMeaningfulCurrentPassword ||
+        hasMeaningfulNewPassword
     );
-  }, [dirtyFields, formValues, currentUser]);
+  }, [dirtyFields, formValues, currentUser?.name]);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setIsLoading(true);
@@ -78,34 +86,63 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ currentUser }) => {
         throw new Error("User is not logged in");
       }
 
-      // Validate password change - both fields must be filled if either is changed
-      if (
-        (data.currentPassword || data.newPassword) &&
-        (!data.currentPassword || !data.newPassword)
-      ) {
-        throw new Error(
-          "Both current and new password are required for password change"
-        );
+      // Build update data with only changed fields
+      const updateData: {
+        name?: string;
+        currentPassword?: string;
+        newPassword?: string;
+      } = {};
+
+      // Only include name if it changed meaningfully
+      if (dirtyFields.name && data.name.trim() !== currentUser.name?.trim()) {
+        updateData.name = data.name.trim();
       }
 
-      const updateData = {
-        name: data.name.trim(),
-        departmentId: currentUser.departmentId,
-        ...(data.currentPassword && {
-          currentPassword: data.currentPassword.trim(),
-          newPassword: data.newPassword.trim(),
-        }),
-      };
+      // Only include passwords if both fields are filled and changed meaningfully
+      if (dirtyFields.currentPassword && dirtyFields.newPassword) {
+        const trimmedCurrent = data.currentPassword.trim();
+        const trimmedNew = data.newPassword.trim();
 
-      await axios.patch(`/api/users/${currentUser.id}`, updateData);
-      toast.success("Profile updated");
-      reset({
-        name: data.name.trim(),
-        email: currentUser.email,
-        currentPassword: "",
-        newPassword: "",
-      });
-      router.refresh();
+        if (!trimmedCurrent || !trimmedNew) {
+          toast.error("Both current and new password are required");
+          setIsLoading(false);
+          return;
+        }
+
+        updateData.currentPassword = trimmedCurrent;
+        updateData.newPassword = trimmedNew;
+      } else if (dirtyFields.currentPassword || dirtyFields.newPassword) {
+        // If only one password field is changed
+        toast.error("Both current and new password are required");
+        setIsLoading(false);
+        return;
+      }
+
+      // If no meaningful changes
+      if (Object.keys(updateData).length === 0) {
+        toast.error("No meaningful changes detected");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await axios.patch(
+        `/api/users/${currentUser.id}`,
+        updateData
+      );
+
+      if (response.data.error) {
+        toast.error(response.data.error);
+      } else {
+        toast.success("Profile updated");
+        // Reset form but keep the updated name
+        reset({
+          name: response.data.name || currentUser.name,
+          email: currentUser.email,
+          currentPassword: "",
+          newPassword: "",
+        });
+        router.refresh();
+      }
     } catch {
       toast.error("Something went wrong");
     } finally {

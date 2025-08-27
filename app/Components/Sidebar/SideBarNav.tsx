@@ -7,7 +7,6 @@ import UserNavItems from "./UserNavItems";
 import SuperAdminNav from "./SuperAdminNav";
 import BackDrop from "../BackDrop";
 
-
 interface SideBarProps {
   currentUser: SafeUser | null;
 }
@@ -28,12 +27,11 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
         className={`bg-white border-r pt-20 border-gray-200 text-gray-800 w-60 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
-        aria-hidden={!isOpen}
+        inert={!isOpen}
       >
         <nav className="h-full flex flex-col justify-between">
           <div className="pl-4 xl:pl-8 py-4 space-y-8">
             <UserNavItems onItemClick={handleItemClick} />
-
 
             <div>
               {currentUser?.role === "SUPER_ADMIN" && (

@@ -24,20 +24,59 @@ export async function PATCH(
     const { name, email, departmentId, role, currentPassword, newPassword } =
       body;
 
-    if (currentUser.role === Role.SUPER_ADMIN) {
-      // Admin updates - require all fields except password
-      if (!name || !email || !departmentId || !role) {
-        return NextResponse.json({ error: "Missing required fields" });
+    // Prepare update data
+    type UpdateUserData = {
+      name?: string;
+      email?: string;
+      departmentId?: string;
+      role?: Role;
+      hashedPassword?: string;
+      passwordLastChanged?: Date;
+    };
+
+    const updateData: UpdateUserData = {};
+
+    // Handle name update
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return NextResponse.json({ error: "Name cannot be empty" });
       }
-    } else {
-      // Self-updates - only require name
-      if (!name) {
-        return NextResponse.json({ error: "Name is required" });
+      updateData.name = name.trim();
+    }
+
+    // Handle admin updates (only SUPER_ADMIN can update these)
+    if (currentUser.role === Role.SUPER_ADMIN) {
+      if (email !== undefined) {
+        if (!email.trim()) {
+          return NextResponse.json({ error: "Email cannot be empty" });
+        }
+        updateData.email = email.trim();
+      }
+
+      if (departmentId !== undefined) {
+        updateData.departmentId = departmentId;
+      }
+
+      if (role !== undefined) {
+        updateData.role = role;
       }
     }
 
-    // Password change validation (only for self-updates)
-    if (currentPassword && currentUser.id === userId) {
+    // Handle password changes
+    if (currentPassword !== undefined || newPassword !== undefined) {
+      if (currentUser.id !== userId) {
+        return NextResponse.json({
+          error: "Cannot change another user's password",
+        });
+      }
+
+      // Both password fields must be provided
+      if (!currentPassword || !newPassword) {
+        return NextResponse.json({
+          error: "Both current and new password are required",
+        });
+      }
+
       if (!currentUser.hashedPassword) {
         return NextResponse.json({ error: "Invalid current password" });
       }
@@ -51,34 +90,32 @@ export async function PATCH(
         return NextResponse.json({ error: "Invalid current password" });
       }
 
-      if (!newPassword || newPassword.length < 6) {
+      if (newPassword.length < 6) {
         return NextResponse.json({
           error: "New password must be at least 6 characters",
         });
       }
+
+      updateData.hashedPassword = await bcrypt.hash(newPassword, 10);
+      updateData.passwordLastChanged = new Date();
     }
 
-    // Prepare update data
-    const updateData = {
-      name,
-      ...(currentUser.role === Role.SUPER_ADMIN && {
-        email,
-        departmentId,
-        role,
-      }),
-      ...(newPassword && {
-        hashedPassword: await bcrypt.hash(newPassword, 10),
-        passwordLastChanged: new Date(),
-      }),
-    };
+    // Check if there's anything to update
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: "No changes provided" });
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updateData,
     });
 
-    return NextResponse.json(updatedUser);
-  } catch {
+    // Don't return the hashed password
+    const { hashedPassword, ...userWithoutPassword } = updatedUser;
+
+    return NextResponse.json(userWithoutPassword);
+  } catch (error) {
+    console.error("Update error:", error);
     return NextResponse.json({ error: "An error occurred" });
   }
 }
