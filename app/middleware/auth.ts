@@ -33,7 +33,7 @@ export async function authMiddleware(request: NextRequest) {
     }
 
     return NextResponse.next();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Auth Middleware Error:", error);
     return NextResponse.redirect(new URL("/signin", request.url));
   }
