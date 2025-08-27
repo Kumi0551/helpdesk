@@ -20,13 +20,39 @@ export async function getDepartmentTickets() {
         createdBy: {
           select: {
             id: true,
+            image: true,
             name: true,
             email: true,
-            image: true,
             isActive: true,
           },
         },
-        // ... other includes
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        acceptedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
