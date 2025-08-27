@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       default:
         return new NextResponse("Invalid action", { status: 400 });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("2FA error:", error);
     return new NextResponse("Internal error", { status: 500 });
   }
