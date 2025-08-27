@@ -4,7 +4,7 @@ import Container from "@/app/Components/Container";
 import EmptyState from "@/app/Components/EmptyState";
 import UserAvatar from "@/app/Components/UserAvatar";
 import Link from "next/link";
-import { FaPen, FaToggleOn, FaToggleOff } from "react-icons/fa";
+import { FaPen } from "react-icons/fa";
 import ToggleUserStatus from "./ToggleUserStatus";
 
 interface UserDetailsPageProps {

@@ -105,10 +105,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ currentUser }) => {
         newPassword: "",
       });
       router.refresh();
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error || error.message || "Something went wrong"
-      );
+    } catch {
+      toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
