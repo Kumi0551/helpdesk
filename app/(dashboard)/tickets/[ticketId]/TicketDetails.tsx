@@ -3,7 +3,6 @@
 import { Ticket, User, Priority, Status } from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import Button from "@/app/Components/Button";
 import { PriorityBadge } from "@/app/Components/tickets/PriorityBadge";
 import { StatusBadge } from "@/app/Components/tickets/StatusBadge";
 import CommentForm from "./CommentForm";
@@ -175,7 +174,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
               currentUserId={currentUser.id}
               assignedToId={ticket.assignedTo?.id || null}
               departmentId={ticket.departmentId}
-              currentUserDepartmentId={currentUser.departmentId}
+              currentUserDepartmentId={currentUser.departmentId ?? ""}
               createdById={ticket.createdBy.id}
               ticketSubject={ticket.subject}
             />
@@ -203,7 +202,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
 
         <AssignTicketForm
           ticketId={ticket.id}
-          currentUserDepartmentId={currentUser.departmentId}
+          currentUserDepartmentId={currentUser.departmentId ?? ""}
           canAssignTicket={canAssignTicket}
         />
 

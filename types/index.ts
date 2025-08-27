@@ -5,7 +5,6 @@ import {
   Comment,
   Priority,
   Status,
-  Role,
 } from "@prisma/client";
 
 export type SafeUser = Omit<

@@ -12,7 +12,7 @@ interface InputProps {
   errors: FieldErrors;
   min?: string;
   icon?: React.ReactNode;
-  validationRules?: Record<string, any>;
+  validationRules?: Record<string, unknown>;
 }
 
 const Input: React.FC<InputProps> = ({
