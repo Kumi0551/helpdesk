@@ -40,7 +40,13 @@ export default async function getTicketById(ticketId: string) {
             name: true,
           },
         },
-        comments: true,
+        comments: {
+          include: {
+            createdBy: {
+              select: { id: true, name: true, email: true, image: true },
+            },
+          },
+        },
       },
     });
 
